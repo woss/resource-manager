@@ -72,7 +72,11 @@ class EAmazonS3ResourceManager extends CApplicationComponent implements IResourc
 		);
 		if ($file instanceof CUploadedFile) {
 			$defaultOptions['SourceFile'] = $file->getTempName();
-		} else {
+		}
+        elseif(file_exists($file)){
+            $defaultOptions['SourceFile'] = $file;
+        }
+        else {
 			$defaultOptions['Body'] = $file;
 		}
 
