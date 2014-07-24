@@ -47,7 +47,7 @@ class EAmazonS3ResourceManager extends CApplicationComponent implements IResourc
 	 */
 	public function init()
 	{
-		foreach (array('key', 'secret', 'bucket', 'region') as $property) {
+		foreach (array('key', 'secret', 'bucket') as $property) {
 			if ($this->$property === null) {
 				throw new CException(strtr(
 					'"{class}" class cannot be initialized. "${property}" property was not set.',
@@ -135,7 +135,6 @@ class EAmazonS3ResourceManager extends CApplicationComponent implements IResourc
 			$this->_client = S3Client::factory(array(
 				'key' => $this->key,
 				'secret' => $this->secret,
-				'region' => $this->region,
 			));
 		}
 
