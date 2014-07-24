@@ -60,6 +60,7 @@ class EAmazonS3ResourceManager extends CApplicationComponent implements IResourc
 	}
 
 	/**
+     * Returns actual file link if success else returns what AWS returns
 	 * @inheritdoc
 	 */
 	public function saveFile($file, $name, $options = array())
@@ -78,9 +79,16 @@ class EAmazonS3ResourceManager extends CApplicationComponent implements IResourc
 		/** @var Model $result */
 		$result = $this->getClient()->putObject(array_merge($defaultOptions, $options));
 
-		return $result->hasKey('ObjectURL') &&
+		if($result->hasKey('ObjectURL') &&
 			is_string($result->get('ObjectURL')) &&
-			strlen($result->get('ObjectURL')) > 0;
+			strlen($result->get('ObjectURL')) > 0 )
+        {
+            return $result->getAll()['ObjectURL'];
+        }
+        else
+        {
+            return $result->getAll();
+        }
 	}
 
 	/**
