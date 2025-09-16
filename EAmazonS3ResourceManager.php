@@ -38,6 +38,10 @@ class EAmazonS3ResourceManager extends CApplicationComponent implements IResourc
 	 */
 	public $region;
 	/**
+	 * @var boolean whether copied object should have `public-read` permissions after copy.
+	 */
+	public $publicOnCopy = true;
+	/**
 	 * @var S3Client instance.
 	 */
 	private $_client;
@@ -107,6 +111,35 @@ class EAmazonS3ResourceManager extends CApplicationComponent implements IResourc
 		));
 
 		return $result['DeleteMarker'];
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function copyFile($sourceName, $targetName)
+	{
+		if (!$this->getIsFileExists($sourceName)) {
+			return false;
+		}
+
+		$result = $this->getClient()->copyObject(array(
+			'Bucket' => $this->bucket,
+			'Key' => $targetName,
+			'CopySource' => "{$this->bucket}/{$sourceName}",
+		));
+
+		if ($this->publicOnCopy) {
+			$result2 = $this->getClient()->putObjectAcl(array(
+				'ACL' => 'public-read',
+				'Bucket' => $this->bucket,
+				'Key' => $targetName,
+			));
+
+			return $result->hasKey('RequestId') && is_string($result->get('RequestId')) && strlen($result->get('RequestId')) > 0 &&
+					$result2->hasKey('RequestId') && is_string($result2->get('RequestId')) && strlen($result2->get('RequestId')) > 0;
+		} else {
+			return $result->hasKey('RequestId') && is_string($result->get('RequestId')) && strlen($result->get('RequestId')) > 0;
+		}
 	}
 
 	/**
